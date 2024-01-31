@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "922917805907",
+    "project_id": "mecanicos-f663e",
+    "storage_bucket": "mecanicos-f663e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922917805907:android:750631dcc5816078f9cba6",
+        "android_client_info": {
+          "package_name": "com.secaac.mimec"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhoIjJJcqGyhXNcXyREb6ZX2dmhlVlCrE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
