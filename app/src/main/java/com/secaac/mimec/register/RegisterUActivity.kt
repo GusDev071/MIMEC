@@ -7,8 +7,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -21,7 +19,6 @@ class RegisterUActivity : AppCompatActivity() {
     private lateinit var etContraseña: EditText
     private lateinit var etConfirmarContraseña: EditText
     private lateinit var btnRegistrar: Button
-    private lateinit var firebaseAuth: FirebaseAuth
     private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +33,6 @@ class RegisterUActivity : AppCompatActivity() {
         etContraseña = findViewById(R.id.editTextTextPassword)
         etConfirmarContraseña = findViewById(R.id.editTextPassword)
         btnRegistrar = findViewById(R.id.button)
-        firebaseAuth = Firebase.auth
 
         txtIni.setOnClickListener { Ini() }
         btnRegistrar.setOnClickListener { registrarUsuario() }
@@ -66,39 +62,29 @@ class RegisterUActivity : AppCompatActivity() {
             return
         }
 
-        firebaseAuth.createUserWithEmailAndPassword(correo, contraseña)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Registro exitoso
-                    Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+        // Crear un objeto usuario
+        val user = hashMapOf(
+            "nombre" to nombre,
+            "marca" to marca,
+            "modelo" to modelo,
+            "correo" to correo,
+            "contraseña" to contraseña,
+            "usuario" to "usuario" // Asegúrate de que este campo sea "usuario" para los usuarios normales y algo diferente para los mecánicos
+        )
 
-                    // Crear un objeto usuario
-                    val user = hashMapOf(
-                        "nombre" to nombre,
-                        "marca" to marca,
-                        "modelo" to modelo,
-                        "correo" to correo,
-                        "userType" to "user" // Add this line
-                    )
+        // Guardar el objeto usuario en Firestore
+        db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
 
-                    // Guardar el objeto usuario en Firestore
-                    db.collection("Usuarios")
-                        .add(user)
-                        .addOnSuccessListener { documentReference ->
-                            Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
-                        }
-
-                    // Redirigir al usuario a la actividad de inicio de sesión
-                    val intent = Intent(this, LoginUActivity::class.java)
-                    startActivity(intent)
-                    finish() // Cierra la actividad actual para que no pueda volver atrás
-                } else {
-                    // Si falla el registro, muestra un mensaje de error
-                    Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
-                }
+                // Redirigir al usuario a la actividad de inicio de sesión
+                val intent = Intent(this, LoginUActivity::class.java)
+                startActivity(intent)
+                finish() // Cierra la actividad actual para que no pueda volver atrás
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
             }
     }
 }

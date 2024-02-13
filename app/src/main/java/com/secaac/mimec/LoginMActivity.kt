@@ -7,7 +7,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -17,7 +16,6 @@ class LoginMActivity : AppCompatActivity() {
     private lateinit var iniS: Button
     private lateinit var etCorreo: EditText
     private lateinit var etContraseña: EditText
-    private lateinit var firebaseAuth: FirebaseAuth
     private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,12 +27,9 @@ class LoginMActivity : AppCompatActivity() {
         iniS = findViewById(R.id.iniS)
         etCorreo = findViewById(R.id.editTextTextEmailAddress)
         etContraseña = findViewById(R.id.editTextTextPassword)
-        firebaseAuth = FirebaseAuth.getInstance()
 
         txtReg2.setOnClickListener { Reg2() }
-
         iniS.setOnClickListener { IniS() }
-
         txtReg3.setOnClickListener {
             val intent = Intent(this, RecuperarContra::class.java)
             startActivity(intent)
@@ -55,29 +50,24 @@ class LoginMActivity : AppCompatActivity() {
             return
         }
 
-        firebaseAuth.signInWithEmailAndPassword(correo, contraseña)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val user = firebaseAuth.currentUser
-                    if (user != null) {
-                        db.collection("Usuarios").document(user.uid)
-                            .get()
-                            .addOnSuccessListener { document ->
-                                val userType = document.getString("userType")
-                                if (userType == "mechanic") {
-                                    val ini = Intent(this, inicioM::class.java)
-                                    startActivity(ini)
-                                    finish()
-                                } else {
-                                    Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show()
-                                }
-                            }
+        db.collection("usuarios")
+            .whereEqualTo("correo", correo)
+            .whereEqualTo("contraseña", contraseña)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    if (document.getString("usuario") == "mechanic") {
+                        // Inicio de sesión exitoso
+                        val ini = Intent(this, inicioM::class.java)
+                        startActivity(ini)
+                        finish()
                     } else {
-                        Toast.makeText(this, "Error al obtener el usuario actual", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
             }
     }
 }

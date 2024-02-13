@@ -7,7 +7,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -17,7 +16,6 @@ class LoginUActivity : AppCompatActivity() {
     private lateinit var etCorreo: EditText
     private lateinit var etContraseña: EditText
     private lateinit var btnIniciarSesion: Button
-    private lateinit var firebaseAuth: FirebaseAuth
     private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +27,6 @@ class LoginUActivity : AppCompatActivity() {
         etCorreo = findViewById(R.id.editTextTextEmailAddress)
         etContraseña = findViewById(R.id.editTextTextPassword)
         btnIniciarSesion = findViewById(R.id.button)
-        firebaseAuth = FirebaseAuth.getInstance()
 
         txtRegistro.setOnClickListener { Registro() }
 
@@ -55,29 +52,24 @@ class LoginUActivity : AppCompatActivity() {
             return
         }
 
-        firebaseAuth.signInWithEmailAndPassword(correo, contraseña)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val user = firebaseAuth.currentUser
-                    if (user != null) {
-                        db.collection("Usuarios").document(user.uid)
-                            .get()
-                            .addOnSuccessListener { document ->
-                                val userType = document.getString("userType")
-                                if (userType == "user") {
-                                    val intent = Intent(this, InicioUsuario ::class.java)
-                                    startActivity(intent)
-                                    finish()
-                                } else {
-                                    Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show()
-                                }
-                            }
+        db.collection("usuarios")
+            .whereEqualTo("correo", correo)
+            .whereEqualTo("contraseña", contraseña)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    if (document.getString("usuario") == "usuario") {
+                        // Inicio de sesión exitoso
+                        val intent = Intent(this, InicioUsuario::class.java)
+                        startActivity(intent)
+                        finish()
                     } else {
-                        Toast.makeText(this, "Error al obtener el usuario actual", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
             }
     }
 }

@@ -7,8 +7,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -19,7 +17,6 @@ class RegisterMActivity : AppCompatActivity() {
     private lateinit var etCorreo: EditText
     private lateinit var etContraseña: EditText
     private lateinit var btnRegistrar: Button
-    private lateinit var firebaseAuth: FirebaseAuth
     private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +29,6 @@ class RegisterMActivity : AppCompatActivity() {
         etCorreo = findViewById(R.id.editTextTextEmailAddress)
         etContraseña = findViewById(R.id.editTextPassword)
         btnRegistrar = findViewById(R.id.button)
-        firebaseAuth = Firebase.auth
 
         txtIni2.setOnClickListener { Ini2() }
         btnRegistrar.setOnClickListener { registrarUsuario() }
@@ -54,40 +50,28 @@ class RegisterMActivity : AppCompatActivity() {
             return
         }
 
-        // Puedes agregar más validaciones según tus necesidades
+        // Crear un objeto usuario
+        val user = hashMapOf(
+            "nombreCompleto" to nombreCompleto,
+            "nombreTaller" to nombreTaller,
+            "correo" to correo,
+            "contraseña" to contraseña,
+            "usuario" to "mechanic" // Asegúrate de que este campo sea "mechanic" para los mecánicos
+        )
 
-        firebaseAuth.createUserWithEmailAndPassword(correo, contraseña)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Registro exitoso
-                    Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+        // Guardar el objeto usuario en Firestore
+        db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
 
-                    // Crear un objeto usuario
-                    val user = hashMapOf(
-                        "nombreCompleto" to nombreCompleto,
-                        "nombreTaller" to nombreTaller,
-                        "correo" to correo,
-                        "userType" to "mechanic" // Add this line
-                    )
-
-                    // Guardar el objeto usuario en Firestore
-                    db.collection("Usuarios")
-                        .add(user)
-                        .addOnSuccessListener { documentReference ->
-                            Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
-                        }
-
-                    // Redirigir al usuario a la actividad de inicio de sesión
-                    val intent = Intent(this, LoginMActivity::class.java)
-                    startActivity(intent)
-                    finish() // Cierra la actividad actual para que no pueda volver atrás
-                } else {
-                    // Si falla el registro, muestra un mensaje de error
-                    Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
-                }
+                // Redirigir al usuario a la actividad de inicio de sesión
+                val intent = Intent(this, LoginMActivity::class.java)
+                startActivity(intent)
+                finish() // Cierra la actividad actual para que no pueda volver atrás
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
             }
     }
 }
