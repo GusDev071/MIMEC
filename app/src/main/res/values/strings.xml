@@ -2,6 +2,7 @@
     <string name="app_name">MIMEC</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="google_maps_key">AIzaSyDSidX1mriwZ2OsIXMj3ldhvbfR_LB6aZs</string>
     <string-array name="service_types">
         <item>Mantenimiento</item>
         <item>Reparación</item>
