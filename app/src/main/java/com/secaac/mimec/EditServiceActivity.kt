@@ -19,14 +19,7 @@ class EditServiceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_edit_service)
 
         // Retrieve the service from the Intent
-        val serviceMap = intent.getSerializableExtra("service") as HashMap<String, Any>
-        val service = Service().apply {
-            id = serviceMap["id"] as String?
-            serviceName = serviceMap["serviceName"] as String?
-            cost = serviceMap["cost"] as String?
-            serviceType = serviceMap["serviceType"] as String?
-            description = serviceMap["description"] as String?
-        }
+        val service = intent.getSerializableExtra("service") as Service
 
         // Get references to the edit fields
         val serviceNameField = findViewById<TextInputEditText>(R.id.service_name)

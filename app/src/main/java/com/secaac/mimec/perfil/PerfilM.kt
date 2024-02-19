@@ -25,10 +25,7 @@ class PerfilM : Fragment() {
         val vista = inflater.inflate(R.layout.fragment_perfil_m, container, false)
 
         // Obtener el correo electrónico del usuario actual
-        obtenerCorreoUsuarioActual()
-
-        // Obtener los datos del usuario de Firestore
-        obtenerDatosUsuario(vista)
+        obtenerCorreoUsuarioActual(vista)
 
         // Agregar OnClickListener al botón "Cerrar sesión"
         vista.findViewById<Button>(R.id.cerrarSM).setOnClickListener {
@@ -44,12 +41,14 @@ class PerfilM : Fragment() {
         return vista
     }
 
-    private fun obtenerCorreoUsuarioActual() {
+    private fun obtenerCorreoUsuarioActual(vista: View) {
         db.collection("sesionUsuario")
             .document("sesionActual")
             .get()
             .addOnSuccessListener { documento ->
                 correoUsuarioActual = documento.getString("correo") ?: ""
+                // Ahora que tenemos el correo del usuario, obtenemos sus datos
+                obtenerDatosUsuario(vista)
             }
             .addOnFailureListener { excepcion ->
                 Log.d("PerfilM", "falló la obtención con ", excepcion)
