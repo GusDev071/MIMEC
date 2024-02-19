@@ -11,12 +11,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class agregar : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,31 +48,45 @@ class agregar : Fragment() {
         val submitButton = view.findViewById<Button>(R.id.submit_button)
 
         submitButton.setOnClickListener {
-            val userId = FirebaseAuth.getInstance().currentUser?.uid
-            val db = FirebaseFirestore.getInstance()
+            // Retrieve the user ID from 'sesionUsuario' collection
+            db.collection("sesionUsuario")
+                .document("sesionActual")
+                .get()
+                .addOnSuccessListener { document ->
+                    val userId = document.getString("id")
 
-            val serviceData = hashMapOf(
-                "serviceName" to serviceName.text.toString(),
-                "cost" to cost.text.toString(),
-                "serviceType" to autoCompleteTextView?.text.toString(),
-                "description" to description.text.toString()
-            )
+                    // Check if userId is not null or empty
+                    if (!userId.isNullOrEmpty()) {
+                        val serviceData = hashMapOf(
+                            "serviceName" to serviceName.text.toString(),
+                            "cost" to cost.text.toString(),
+                            "serviceType" to autoCompleteTextView?.text.toString(),
+                            "description" to description.text.toString()
+                        )
 
-            val userRef = db.collection("users").document(userId!!).collection("services")
-            val newServiceRef = userRef.document() // Create a new document with a unique ID
+                        val userRef = db.collection("users").document(userId).collection("services")
+                        val newServiceRef = userRef.document() // Create a new document with a unique ID
 
-            serviceData["id"] = newServiceRef.id // Add the unique ID to the service data
+                        serviceData["id"] = newServiceRef.id // Add the unique ID to the service data
 
-            newServiceRef.set(serviceData) // Set the service data in the new document
-                .addOnSuccessListener {
-                    Toast.makeText(context, "Datos enviados con éxito", Toast.LENGTH_SHORT).show()
-                    serviceName.text = null
-                    cost.text = null
-                    description.text = null
-                    autoCompleteTextView?.setText("")
+                        newServiceRef.set(serviceData) // Set the service data in the new document
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Datos enviados con éxito", Toast.LENGTH_SHORT).show()
+                                serviceName.text = null
+                                cost.text = null
+                                description.text = null
+                                autoCompleteTextView?.setText("")
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(context, "Error al enviar datos: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        // Show an error message
+                        Toast.makeText(context, "Error: ID del usuario inválido", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(context, "Error al enviar datos: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Error al obtener el ID del usuario", Toast.LENGTH_SHORT).show()
                 }
         }
     }

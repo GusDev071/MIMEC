@@ -50,28 +50,41 @@ class RegisterMActivity : AppCompatActivity() {
             return
         }
 
-        // Crear un objeto usuario
-        val user = hashMapOf(
-            "nombreCompleto" to nombreCompleto,
-            "nombreTaller" to nombreTaller,
-            "correo" to correo,
-            "contraseña" to contraseña,
-            "usuario" to "mechanic" // Asegúrate de que este campo sea "mechanic" para los mecánicos
-        )
+        // Verificar si el correo ya existe en la base de datos
+        db.collection("usuarios")
+            .whereEqualTo("correo", correo)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    Toast.makeText(this, "El correo ya está en uso, intenta con otro", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Crear un objeto usuario
+                    val user = hashMapOf(
+                        "nombreCompleto" to nombreCompleto,
+                        "nombreTaller" to nombreTaller,
+                        "correo" to correo,
+                        "contraseña" to contraseña,
+                        "usuario" to "mechanic" // Asegúrate de que este campo sea "mechanic" para los mecánicos
+                    )
 
-        // Guardar el objeto usuario en Firestore
-        db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+                    // Guardar el objeto usuario en Firestore
+                    db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
+                        .add(user)
+                        .addOnSuccessListener { documentReference ->
+                            Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
 
-                // Redirigir al usuario a la actividad de inicio de sesión
-                val intent = Intent(this, LoginMActivity::class.java)
-                startActivity(intent)
-                finish() // Cierra la actividad actual para que no pueda volver atrás
+                            // Redirigir al usuario a la actividad de inicio de sesión
+                            val intent = Intent(this, LoginMActivity::class.java)
+                            startActivity(intent)
+                            finish() // Cierra la actividad actual para que no pueda volver atrás
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
+                        }
+                }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error al verificar el correo", Toast.LENGTH_SHORT).show()
             }
     }
 }

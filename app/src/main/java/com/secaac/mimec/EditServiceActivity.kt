@@ -7,11 +7,12 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
-import com.secaac.mimec.DatabaseHelper
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class EditServiceActivity : AppCompatActivity() {
 
-    private val db = DatabaseHelper()
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,32 +51,39 @@ class EditServiceActivity : AppCompatActivity() {
             service.serviceType = serviceTypeField.text.toString()
             service.description = descriptionField.text.toString()
 
-            // Assign service.id to a local variable
-            val serviceId = service.id
+            // Retrieve the user ID from 'sesionUsuario' collection
+            db.collection("sesionUsuario")
+                .document("sesionActual")
+                .get()
+                .addOnSuccessListener { document ->
+                    val userId = document.getString("id")
 
-            // Check if serviceId is not null or empty
-            if (!serviceId.isNullOrEmpty()) {
-                // Update the service object in the database
-                db.updateService(serviceId, service, object : FirestoreCallback {
-                    override fun onCallback(success: Boolean) {
-                        // Show a success message if the service was updated successfully, or an error message otherwise
-                        if (success) {
-                            Toast.makeText(this@EditServiceActivity, "Servicio actualizado correctamente", Toast.LENGTH_SHORT).show()
+                    // Check if userId is not null or empty
+                    if (!userId.isNullOrEmpty()) {
+                        // Update the service object in the database
+                        db.collection("usuarios").document(userId).collection("services")
+                            .document(service.id!!)
+                            .set(service)
+                            .addOnSuccessListener {
+                                Toast.makeText(this@EditServiceActivity, "Servicio actualizado correctamente", Toast.LENGTH_SHORT).show()
 
-                            // Create an Intent to start InicioM activity
-                            val intent = Intent(this@EditServiceActivity, inicioM::class.java)
+                                // Create an Intent to start InicioM activity
+                                val intent = Intent(this@EditServiceActivity, inicioM::class.java)
 
-                            // Start the InicioM activity
-                            startActivity(intent)
-                        } else {
-                            Toast.makeText(this@EditServiceActivity, "Error en actualizar el servicio", Toast.LENGTH_SHORT).show()
-                        }
+                                // Start the InicioM activity
+                                startActivity(intent)
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this@EditServiceActivity, "Error en actualizar el servicio", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        // Show an error message
+                        Toast.makeText(this@EditServiceActivity, "Error: ID del usuario inválido", Toast.LENGTH_SHORT).show()
                     }
-                })
-            } else {
-                // Show an error message
-                Toast.makeText(this@EditServiceActivity, "Error: ID del servicio inválido", Toast.LENGTH_SHORT).show()
-            }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this@EditServiceActivity, "Error al obtener el ID del usuario", Toast.LENGTH_SHORT).show()
+                }
         }
 
         // Get reference to the back button

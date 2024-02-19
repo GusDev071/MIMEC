@@ -5,15 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class Servicios : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,21 +38,36 @@ class Servicios : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = ServiceAdapter(emptyList(), ::onEdit, ::onDelete)
 
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users").document(userId!!).collection("services")
+        // Retrieve the user ID from 'sesionUsuario' collection
+        db.collection("sesionUsuario")
+            .document("sesionActual")
             .get()
-            .addOnSuccessListener { result ->
-                val services = mutableListOf<Service>()
-                for (document in result) {
-                    val service = document.toObject(Service::class.java)
-                    services.add(service)
+            .addOnSuccessListener { document ->
+                val userId = document.getString("id")
+
+                // Check if userId is not null or empty
+                if (!userId.isNullOrEmpty()) {
+                    // Fetch the services associated with the current user
+                    db.collection("users").document(userId).collection("services")
+                        .get()
+                        .addOnSuccessListener { result ->
+                            val services = mutableListOf<Service>()
+                            for (document in result) {
+                                val service = document.toObject(Service::class.java)
+                                services.add(service)
+                            }
+                            (recyclerView.adapter as ServiceAdapter).updateData(services)
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle error
+                        }
+                } else {
+                    // Show an error message
+                    Toast.makeText(context, "Error: ID del usuario inválido", Toast.LENGTH_SHORT).show()
                 }
-                (recyclerView.adapter as ServiceAdapter).updateData(services)
             }
-            .addOnFailureListener { exception ->
-                // Handle error
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al obtener el ID del usuario", Toast.LENGTH_SHORT).show()
             }
     }
 

@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -58,6 +59,17 @@ class LoginMActivity : AppCompatActivity() {
                 for (document in documents) {
                     if (document.getString("usuario") == "mechanic") {
                         // Inicio de sesión exitoso
+                        // Agrega el ID del documento del usuario a la colección 'sesionUsuario'
+                        db.collection("sesionUsuario")
+                            .document("sesionActual")
+                            .set(hashMapOf("id" to document.id))
+                            .addOnSuccessListener {
+                                Log.d("LoginActivity", "ID del usuario actual agregado a 'sesionUsuario'")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("LoginActivity", "Error al agregar ID del usuario a 'sesionUsuario'", e)
+                            }
+
                         val ini = Intent(this, inicioM::class.java)
                         startActivity(ini)
                         finish()
