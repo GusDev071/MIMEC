@@ -78,7 +78,32 @@ class Servicios : Fragment() {
     }
 
     private fun onDelete(service: Service) {
-        // Implement delete functionality
+        // Retrieve the user ID from 'sesionUsuario' collection
+        db.collection("sesionUsuario")
+            .document("sesionActual")
+            .get()
+            .addOnSuccessListener { document ->
+                val userId = document.getString("id")
+
+                // Check if userId is not null or empty
+                if (!userId.isNullOrEmpty()) {
+                    // Delete the service from the database
+                    db.collection("users").document(userId).collection("services").document(service.id!!)
+                        .delete()
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Servicio eliminado con éxito", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(context, "Error al eliminar el servicio", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    // Show an error message
+                    Toast.makeText(context, "Error: ID del usuario inválido", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al obtener el ID del usuario", Toast.LENGTH_SHORT).show()
+            }
     }
 
     companion object {

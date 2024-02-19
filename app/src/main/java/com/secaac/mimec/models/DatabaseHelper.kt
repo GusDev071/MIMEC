@@ -11,21 +11,39 @@ class DatabaseHelper {
 
     private val db = FirebaseFirestore.getInstance()
 
-    fun updateService(serviceId: String, service: Service, callback: FirestoreCallback) {
+    fun updateService(service: Service, callback: FirestoreCallback) {
         // Convertir el objeto Service a un Map
         val serviceMap = service.toMap()
 
-        // Actualizar el documento en Firestore
-        db.collection("services")
-            .document(serviceId)
-            .set(serviceMap)
-            .addOnSuccessListener {
-                // Llamar al callback con true para indicar que la operación fue exitosa
-                callback.onCallback(true)
+        // Obtener el ID del servicio
+        val serviceId = service.id
+
+        // Verificar si el ID del servicio no es nulo
+        if (serviceId != null) {
+            // Obtener la referencia al documento
+            val docRef = db.collection("services").document(serviceId)
+
+            // Verificar si el documento existe
+            docRef.get().addOnSuccessListener { document ->
+                if (document != null) {
+                    // Actualizar el documento en Firestore
+                    docRef.update(serviceMap)
+                        .addOnSuccessListener {
+                            // Llamar al callback con true para indicar que la operación fue exitosa
+                            callback.onCallback(true)
+                        }
+                        .addOnFailureListener { e ->
+                            // Llamar al callback con false para indicar que la operación falló
+                            callback.onCallback(false)
+                        }
+                } else {
+                    // Llamar al callback con false para indicar que el documento no existe
+                    callback.onCallback(false)
+                }
             }
-            .addOnFailureListener { e ->
-                // Llamar al callback con false para indicar que la operación falló
-                callback.onCallback(false)
-            }
+        } else {
+            // Llamar al callback con false para indicar que el ID del servicio es nulo
+            callback.onCallback(false)
+        }
     }
 }
