@@ -25,10 +25,10 @@ class ServiceAdapter(private var services: List<Service>, private val onEdit: (S
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val service = services[position]
-        holder.serviceName.text = service.serviceName
-        holder.cost.text = service.cost
-        holder.serviceType.text = service.serviceType
-        holder.description.text = service.description
+        holder.serviceName.text = "Nombre del servicio: ${service.serviceName}"
+        holder.cost.text = "Costo: ${service.cost}"
+        holder.serviceType.text = "Tipo de servicio: ${service.serviceType}"
+        holder.description.text = "Descripción: ${service.description}"
         holder.editButton.setOnClickListener { onEdit(service) }
         holder.deleteButton.setOnClickListener { onDelete(service) }
     }
