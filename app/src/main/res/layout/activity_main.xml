@@ -8,18 +8,20 @@
 
 
     <ImageView
-        android:layout_width="501dp"
-        android:layout_height="981dp"
+        android:layout_width="436dp"
+        android:layout_height="880dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.324"
         app:srcCompat="@drawable/fondo" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="364dp"
+        android:layout_marginTop="296dp"
         android:fontFamily="@font/poppinsextrabold"
         android:text="¡Bienvenido!"
         android:textAlignment="center"
@@ -33,14 +35,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="432dp"
+        android:layout_marginTop="392dp"
         android:fontFamily="@font/poppinsmedium"
-        android:textAlignment="center"
         android:text="Elige una opción"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="45dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,11 +50,12 @@
         android:id="@+id/btnU"
         android:layout_width="147dp"
         android:layout_height="52dp"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="524dp"
+        android:backgroundTint="@color/blue2"
         android:text="Usuario"
         android:textSize="18dp"
-        android:backgroundTint="@color/blue2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -60,10 +63,10 @@
         android:id="@+id/btnM"
         android:layout_width="152dp"
         android:layout_height="57dp"
-        android:layout_marginTop="684dp"
+        android:layout_marginTop="608dp"
+        android:backgroundTint="@color/blue"
         android:text="Mecanicos"
         android:textSize="17dp"
-        android:backgroundTint="@color/blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
