@@ -1,10 +1,11 @@
 package com.secaac.mimec
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.secaac.mimec.databinding.ActivityInicioUsuarioBinding
 import com.secaac.mimec.mapas.MapaM
+import com.secaac.mimec.perfil.PerfilU
 
 class InicioUsuario : AppCompatActivity() {
     private lateinit var binding : ActivityInicioUsuarioBinding

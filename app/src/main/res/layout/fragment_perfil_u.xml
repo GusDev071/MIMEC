@@ -65,7 +65,7 @@
                             android:layout_marginTop="9dp"
                             android:layout_marginEnd="177dp"
                             android:fontFamily="@font/poppinsmedium"
-                            android:hint="correo"
+                            android:text=""
                             android:textColor="@color/black"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.495"
@@ -81,7 +81,7 @@
                             android:layout_marginEnd="177dp"
                             android:fontFamily="@font/poppinsblack"
                             android:text=""
-                            android:textColor="@color/white"
+                            android:textColor="@color/blue"
                             android:textSize="20dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -178,12 +178,13 @@
                                     android:textSize="18sp" />
 
                                 <TextView
-                                    android:id="@+id/textView14"
+                                    android:id="@+id/marcaa"
                                     android:layout_width="207dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
+                                    android:textColor="@color/black"
                                     android:fontFamily="@font/poppinsmedium"
-                                    android:text="Chevloret"
+                                    android:text=""
                                     android:textAlignment="textEnd"
                                     android:textSize="18sp" />
 
@@ -215,12 +216,13 @@
                                     android:textSize="18sp" />
 
                                 <TextView
-                                    android:id="@+id/textView13"
+                                    android:id="@+id/modeloo"
                                     android:layout_width="247dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:fontFamily="@font/poppinsmedium"
-                                    android:text="Aveo"
+                                    android:textColor="@color/black"
+                                    android:text=""
                                     android:textAlignment="textEnd"
                                     android:textSize="18sp" />
 

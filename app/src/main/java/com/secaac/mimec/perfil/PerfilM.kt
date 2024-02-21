@@ -1,5 +1,6 @@
 package com.secaac.mimec
 
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -40,16 +41,16 @@ class PerfilM : Fragment() {
         return vista
     }
 
-    private fun obtenerDatosUsuario(vista: View) {
-        // Obtener el correo electrónico del usuario actual
-        // Reemplaza "correoUsuarioActual" con el correo electrónico real del usuario actual
-        val correoUsuarioActual = "correoUsuarioActual"
+   private fun obtenerDatosUsuario(vista: View) {
+    // Recuperar el ID del documento de las preferencias compartidas
+    val sharedPref = activity?.getSharedPreferences("myPrefs", MODE_PRIVATE)
+    val userId = sharedPref?.getString("userId", null)
 
-        db.collection("usuarios")
-            .whereEqualTo("correo", correoUsuarioActual)
+    if (userId != null) {
+        db.collection("usuarios").document(userId)
             .get()
-            .addOnSuccessListener { documentos ->
-                for (documento in documentos) {
+            .addOnSuccessListener { document ->
+                if (document != null) {
                     // Encontrar los TextViews
                     val nombreMTextView = vista.findViewById<TextView>(R.id.nombre_m)
                     val correoMTextView = vista.findViewById<TextView>(R.id.correo_m)
@@ -57,17 +58,19 @@ class PerfilM : Fragment() {
                     val direccionTextView = vista.findViewById<TextView>(R.id.direccion)
 
                     // Establecer el texto de los TextViews con los datos del usuario
-                    nombreMTextView.text = documento.getString("nombreCompleto")
-                    correoMTextView.text = documento.getString("correo")
-                    nombreTallerTextView.text = documento.getString("nombreTaller")
-                    direccionTextView.text = documento.getString("direccion")
+                    nombreMTextView.text = document.getString("nombreCompleto")
+                    correoMTextView.text = document.getString("correo")
+                    nombreTallerTextView.text = document.getString("nombreTaller")
+                    // direccionTextView.text = document.getString("direccion") // No estás almacenando ninguna dirección en RegisterMActivity.kt
+                } else {
+                    Log.d("PerfilM", "No such document")
                 }
             }
-            .addOnFailureListener { excepcion ->
-                Log.d("PerfilM", "falló la obtención con ", excepcion)
+            .addOnFailureListener { exception ->
+                Log.d("PerfilM", "get failed with ", exception)
             }
     }
-
+}
     // Función para cerrar la sesión
     private fun cerrarSesion() {
         // Crear un Intent para iniciar MainActivity

@@ -1,10 +1,12 @@
-package com.secaac.mimec
+package com.secaac.mimec.perfil
 
 import android.app.Activity
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,16 +16,26 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
+import com.secaac.mimec.InicioUsuario
+import com.secaac.mimec.R
+import com.secaac.mimec.RcontrasenaU
 import java.io.IOException
-import java.util.*
+import java.util.UUID
 
 class PerfilU : Fragment() {
 
     private val PICK_IMAGE_REQUEST = 71
     private var filePath: Uri? = null
+    private lateinit var nombre: TextView
+    private lateinit var correo: TextView
+    private lateinit var marca: TextView
+    private lateinit var modelo: TextView
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,13 +44,13 @@ class PerfilU : Fragment() {
         val view = inflater.inflate(R.layout.fragment_perfil_u, container, false)
 
         val user = FirebaseAuth.getInstance().currentUser
-
-        val textView3 = view.findViewById<TextView>(R.id.textView3)
-        val textView4 = view.findViewById<TextView>(R.id.textView4)
         val imageView4 = view.findViewById<ImageView>(R.id.imageView4)
+        nombre = view.findViewById(R.id.textView3)
+        correo = view.findViewById(R.id.textView4)
+        marca = view.findViewById(R.id.marcaa)
+        modelo = view.findViewById(R.id.modeloo)
 
-        textView3.text = user?.displayName
-        textView4.text = user?.email
+
 
         imageView4.setOnClickListener {
             launchGallery()
@@ -57,8 +69,12 @@ class PerfilU : Fragment() {
             abrirRcontrasenaU()
         }
 
+        cargarDatosUsuario()
         return view
     }
+
+
+
 
     private fun launchGallery() {
         val intent = Intent()
@@ -66,6 +82,7 @@ class PerfilU : Fragment() {
         intent.action = Intent.ACTION_GET_CONTENT
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST)
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -85,6 +102,41 @@ class PerfilU : Fragment() {
         }
     }
 
+  private fun cargarDatosUsuario() {
+    val db = Firebase.firestore
+
+    // Recuperar el ID del documento de las preferencias compartidas
+    val sharedPref = activity?.getSharedPreferences("myPrefs", MODE_PRIVATE)
+    val userId = sharedPref?.getString("userId", null)
+
+    if (userId != null) {
+        db.collection("usuarios").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val nombreUsuario = document.getString("nombre")
+                    val marcaUsuario = document.getString("marca")
+                    val modeloUsuario = document.getString("modelo")
+                    val correoUsuario = document.getString("correo")
+
+                    // Asegúrate de hacer esto en el hilo principal
+                    activity?.runOnUiThread {
+                        nombre.text = nombreUsuario
+                        marca.text = marcaUsuario
+                        modelo.text = modeloUsuario
+                        correo.text = correoUsuario
+                    }
+                } else {
+                    Log.d("PerfilU", "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("PerfilU", "get failed with ", exception)
+            }
+    }
+}
+
+
     private fun uploadImage() {
         if(filePath != null) {
             val ref = FirebaseStorage.getInstance().getReference("Fotos perfil usuario/" + UUID.randomUUID().toString())
@@ -102,12 +154,17 @@ class PerfilU : Fragment() {
         }
     }
 
+
     private fun cerrarSesion() {
-        (activity as InicioUsuario).allowExit()
-    }
+    FirebaseAuth.getInstance().signOut() // Cerrar la sesión del usuario actual
+    (activity as InicioUsuario).allowExit()
+}
+
 
     private fun abrirRcontrasenaU() {
         val intent = Intent(activity, RcontrasenaU::class.java)
         startActivity(intent)
     }
+
+
 }

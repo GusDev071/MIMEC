@@ -1,4 +1,4 @@
-package com.secaac.mimec
+package com.secaac.mimec.register
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.secaac.mimec.LoginUActivity
+import com.secaac.mimec.R
 
 class RegisterUActivity : AppCompatActivity() {
     private lateinit var txtIni: TextView
@@ -73,18 +75,26 @@ class RegisterUActivity : AppCompatActivity() {
         )
 
         // Guardar el objeto usuario en Firestore
-        db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
-            .add(user)
-            .addOnSuccessListener { documentReference ->
-                Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+        // Guardar el objeto usuario en Firestore
+db.collection("usuarios")
+    .add(user)
+    .addOnSuccessListener { documentReference ->
+        Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
 
-                // Redirigir al usuario a la actividad de inicio de sesión
-                val intent = Intent(this, LoginUActivity::class.java)
-                startActivity(intent)
-                finish() // Cierra la actividad actual para que no pueda volver atrás
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
-            }
+        // Guardar el ID del documento en las preferencias compartidas
+        val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("userId", documentReference.id)
+            apply()
+        }
+
+        // Redirigir al usuario a la actividad de inicio de sesión
+        val intent = Intent(this, LoginUActivity::class.java)
+        startActivity(intent)
+        finish() // Cierra la actividad actual para que no pueda volver atrás
+    }
+    .addOnFailureListener { e ->
+        Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
+    }
     }
 }
