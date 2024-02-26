@@ -54,6 +54,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:21.0.1")
     implementation("com.google.firebase:firebase-storage:20.0.0")
     implementation ("com.google.maps:google-maps-services:0.15.0")
+    implementation ("com.google.firebase:firebase-storage:19.2.2")
     implementation ("com.google.maps.android:android-maps-utils:2.2.0")
     implementation ("com.google.android.gms:play-services-location:18.0.0")
     implementation("com.google.firebase:firebase-firestore-ktx:23.0.4")
@@ -66,5 +67,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+
 
 }

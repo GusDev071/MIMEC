@@ -14,13 +14,14 @@ class MainActivity : AppCompatActivity() {
 
     // ID de permiso para la ubicación
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
+    private val GALLERY_PERMISSION_REQUEST_CODE = 1002
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        btnU = findViewById<Button>(R.id.btnU)
-        btnM = findViewById<Button>(R.id.btnM)
+        btnU = findViewById(R.id.btnU)
+        btnM = findViewById(R.id.btnM)
 
         btnU.setOnClickListener { login() }
         btnM.setOnClickListener { login2() }
@@ -28,7 +29,11 @@ class MainActivity : AppCompatActivity() {
         // Verificar si ya se han otorgado los permisos
         if (checkLocationPermission()) {
             // Los permisos de ubicación ya se han otorgado
-            // Puedes realizar las acciones que requieran permisos aquí
+            // Verificar si los permisos de la galería han sido otorgados
+            if (!checkGalleryPermission()) {
+                // Solicitar permisos de la galería si no se han otorgado
+                requestGalleryPermission()
+            }
         } else {
             // Solicitar permisos de ubicación si no se han otorgado
             requestLocationPermission()
@@ -55,12 +60,29 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    // Función para verificar si se han otorgado los permisos de la galería
+    private fun checkGalleryPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     // Función para solicitar permisos de ubicación
     private fun requestLocationPermission() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
             LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    // Función para solicitar permisos de la galería
+    private fun requestGalleryPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+            GALLERY_PERMISSION_REQUEST_CODE
         )
     }
 
@@ -71,11 +93,24 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permiso de ubicación concedido, puedes realizar las acciones que lo requieran
-            } else {
-                // Permiso de ubicación denegado, debes manejar esto de acuerdo a tu lógica de la aplicación
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permiso de ubicación concedido, puedes realizar las acciones que lo requieran
+                    // Verificar y solicitar permisos de la galería si no se han otorgado
+                    if (!checkGalleryPermission()) {
+                        requestGalleryPermission()
+                    }
+                } else {
+                    // Permiso de ubicación denegado, debes manejar esto de acuerdo a tu lógica de la aplicación
+                }
+            }
+            GALLERY_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permiso de la galería concedido, puedes realizar las acciones que lo requieran
+                } else {
+                    // Permiso de la galería denegado, debes manejar esto de acuerdo a tu lógica de la aplicación
+                }
             }
         }
     }

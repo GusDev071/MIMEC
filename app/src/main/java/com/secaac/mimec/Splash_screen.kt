@@ -1,11 +1,10 @@
 package com.secaac.mimec
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
-
+import androidx.appcompat.app.AppCompatActivity
 class Splash_screen : AppCompatActivity() {
     private lateinit var imgLogo: ImageView
     private lateinit var txtTitulo: TextView
