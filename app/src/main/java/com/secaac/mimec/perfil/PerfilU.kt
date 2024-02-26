@@ -1,7 +1,6 @@
 package com.secaac.mimec.perfil
 
 import android.app.Activity
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -21,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
-import com.secaac.mimec.InicioUsuario
+import com.secaac.mimec.MainActivity
 import com.secaac.mimec.R
 import com.secaac.mimec.RcontrasenaU
 import java.io.IOException
@@ -102,24 +101,27 @@ class PerfilU : Fragment() {
         }
     }
 
-  private fun cargarDatosUsuario() {
+private fun cargarDatosUsuario() {
     val db = Firebase.firestore
 
-    // Recuperar el ID del documento de las preferencias compartidas
-    val sharedPref = activity?.getSharedPreferences("myPrefs", MODE_PRIVATE)
-    val userId = sharedPref?.getString("userId", null)
+    // Obtener el ID del usuario actualmente autenticado
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     if (userId != null) {
+        Log.d("PerfilU", "User ID: $userId") // Registrar el ID del usuario
+
         db.collection("usuarios").document(userId)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null) {
+                    Log.d("PerfilU", "Document data: ${document.data}") // Registrar los datos del documento
+
                     val nombreUsuario = document.getString("nombre")
                     val marcaUsuario = document.getString("marca")
                     val modeloUsuario = document.getString("modelo")
                     val correoUsuario = document.getString("correo")
 
-                    // Asegúrate de hacer esto en el hilo principal
+
                     activity?.runOnUiThread {
                         nombre.text = nombreUsuario
                         marca.text = marcaUsuario
@@ -135,7 +137,6 @@ class PerfilU : Fragment() {
             }
     }
 }
-
 
     private fun uploadImage() {
         if(filePath != null) {
@@ -157,7 +158,9 @@ class PerfilU : Fragment() {
 
     private fun cerrarSesion() {
     FirebaseAuth.getInstance().signOut() // Cerrar la sesión del usuario actual
-    (activity as InicioUsuario).allowExit()
+        val intent = Intent(activity, MainActivity::class.java)
+        // Iniciar MainActivity
+        startActivity(intent)
 }
 
 

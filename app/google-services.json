@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "922917805907",
+    "firebase_url": "https://mecanicos-f663e-default-rtdb.firebaseio.com",
     "project_id": "mecanicos-f663e",
     "storage_bucket": "mecanicos-f663e.appspot.com"
   },
@@ -12,7 +13,12 @@
           "package_name": "com.secaac.mimec"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "922917805907-nvrcjsgkailg1gtdlv1s5c119d70j3fr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDhoIjJJcqGyhXNcXyREb6ZX2dmhlVlCrE"
@@ -20,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "922917805907-nvrcjsgkailg1gtdlv1s5c119d70j3fr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

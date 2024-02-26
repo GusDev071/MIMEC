@@ -2,11 +2,13 @@ package com.secaac.mimec.register
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.secaac.mimec.LoginUActivity
@@ -46,55 +48,66 @@ class RegisterUActivity : AppCompatActivity() {
         finish() // Cierra la actividad actual después de iniciar sesión
     }
 
-    private fun registrarUsuario() {
-        val nombre = etNombre.text.toString().trim()
-        val marca = etMarca.text.toString().trim()
-        val modelo = etModelo.text.toString().trim()
-        val correo = etCorreo.text.toString().trim()
-        val contraseña = etContraseña.text.toString().trim()
-        val confirmarContraseña = etConfirmarContraseña.text.toString().trim()
+  private fun registrarUsuario() {
+    val nombre = etNombre.text.toString().trim()
+    val marca = etMarca.text.toString().trim()
+    val modelo = etModelo.text.toString().trim()
+    val correo = etCorreo.text.toString().trim()
+    val contraseña = etContraseña.text.toString().trim()
+    val confirmarContraseña = etConfirmarContraseña.text.toString().trim()
 
-        if (nombre.isEmpty() || marca.isEmpty() || modelo.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || confirmarContraseña.isEmpty()) {
-            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (contraseña != confirmarContraseña) {
-            Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Crear un objeto usuario
-        val user = hashMapOf(
-            "nombre" to nombre,
-            "marca" to marca,
-            "modelo" to modelo,
-            "correo" to correo,
-            "contraseña" to contraseña,
-            "usuario" to "usuario" // Asegúrate de que este campo sea "usuario" para los usuarios normales y algo diferente para los mecánicos
-        )
-
-        // Guardar el objeto usuario en Firestore
-        // Guardar el objeto usuario en Firestore
-db.collection("usuarios")
-    .add(user)
-    .addOnSuccessListener { documentReference ->
-        Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
-
-        // Guardar el ID del documento en las preferencias compartidas
-        val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
-        with (sharedPref.edit()) {
-            putString("userId", documentReference.id)
-            apply()
-        }
-
-        // Redirigir al usuario a la actividad de inicio de sesión
-        val intent = Intent(this, LoginUActivity::class.java)
-        startActivity(intent)
-        finish() // Cierra la actividad actual para que no pueda volver atrás
+    if (nombre.isEmpty() || marca.isEmpty() || modelo.isEmpty() || correo.isEmpty() || contraseña.isEmpty() || confirmarContraseña.isEmpty()) {
+        Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+        return
     }
-    .addOnFailureListener { e ->
-        Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
+
+    if (contraseña != confirmarContraseña) {
+        Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+        return
     }
-    }
+
+    // Crear un objeto usuario
+    val user = hashMapOf(
+        "nombre" to nombre,
+        "marca" to marca,
+        "modelo" to modelo,
+        "correo" to correo,
+        "contraseña" to contraseña,
+        "usuario" to "usuario" // Asegúrate de que este campo sea "usuario" para los usuarios normales y algo diferente para los mecánicos
+    )
+
+    // Registrar al usuario con Firebase Auth
+    FirebaseAuth.getInstance().createUserWithEmailAndPassword(correo, contraseña)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Obtener el ID del usuario recién registrado
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+                if (userId != null) {
+                    // Guardar el objeto usuario en Firestore con el ID del usuario como el ID del documento
+                    db.collection("usuarios").document(userId)
+                        .set(user)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Usuario almacenado con éxito", Toast.LENGTH_SHORT).show()
+
+
+                            // Redirigir al usuario a la actividad de inicio de sesión
+                            val intent = Intent(this, LoginUActivity::class.java)
+                            startActivity(intent)
+                            finish() // Cierra la actividad actual para que no pueda volver atrás
+                        }
+
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
+                        }
+                    if (userId != null) {
+                        // Agregar un registro de depuración para ver el ID del usuario
+                        Log.d("RegisterUActivity", "ID del usuario: $userId")
+                }
+            } else {
+                Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
+            }
+        }
+}
+}
 }

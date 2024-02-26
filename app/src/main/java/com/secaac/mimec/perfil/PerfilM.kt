@@ -1,4 +1,4 @@
-package com.secaac.mimec
+package com.secaac.mimec.perfil
 
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
@@ -10,8 +10,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.secaac.mimec.MainActivity
+import com.secaac.mimec.R
+import com.secaac.mimec.Rcontrasena_M
 
 class PerfilM : Fragment() {
 
@@ -41,13 +45,15 @@ class PerfilM : Fragment() {
         return vista
     }
 
-   private fun obtenerDatosUsuario(vista: View) {
+  private fun obtenerDatosUsuario(vista: View) {
+    val db = Firebase.firestore
+
     // Recuperar el ID del documento de las preferencias compartidas
     val sharedPref = activity?.getSharedPreferences("myPrefs", MODE_PRIVATE)
-    val userId = sharedPref?.getString("userId", null)
+    val mecanicoId = sharedPref?.getString("mecanicoId", null) // Usa "mecanicoId" para el mecánico
 
-    if (userId != null) {
-        db.collection("usuarios").document(userId)
+    if (mecanicoId != null) {
+        db.collection("usuarios").document(mecanicoId)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null) {
@@ -55,13 +61,13 @@ class PerfilM : Fragment() {
                     val nombreMTextView = vista.findViewById<TextView>(R.id.nombre_m)
                     val correoMTextView = vista.findViewById<TextView>(R.id.correo_m)
                     val nombreTallerTextView = vista.findViewById<TextView>(R.id.n_taller)
-                    val direccionTextView = vista.findViewById<TextView>(R.id.direccion)
+                    val direccionTextView = vista.findViewById<TextView>(R.id.direccioon)
 
                     // Establecer el texto de los TextViews con los datos del usuario
                     nombreMTextView.text = document.getString("nombreCompleto")
                     correoMTextView.text = document.getString("correo")
                     nombreTallerTextView.text = document.getString("nombreTaller")
-                    // direccionTextView.text = document.getString("direccion") // No estás almacenando ninguna dirección en RegisterMActivity.kt
+                    direccionTextView.text = document.getString("direccion")
                 } else {
                     Log.d("PerfilM", "No such document")
                 }
@@ -73,11 +79,12 @@ class PerfilM : Fragment() {
 }
     // Función para cerrar la sesión
     private fun cerrarSesion() {
-        // Crear un Intent para iniciar MainActivity
-        val intent = Intent(activity, MainActivity::class.java)
-        // Iniciar MainActivity
-        startActivity(intent)
-    }
+    FirebaseAuth.getInstance().signOut() // Cerrar la sesión del usuario actual
+    // Crear un Intent para iniciar MainActivity
+    val intent = Intent(activity, MainActivity::class.java)
+    // Iniciar MainActivity
+    startActivity(intent)
+}
 
     // Función para iniciar la nueva actividad
     private fun iniciarNuevaActividad() {

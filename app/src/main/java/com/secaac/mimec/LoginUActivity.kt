@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.secaac.mimec.register.RegisterUActivity
@@ -44,33 +45,26 @@ class LoginUActivity : AppCompatActivity() {
         startActivity(reg)
     }
 
-    private fun iniciarSesion() {
-        val correo = etCorreo.text.toString().trim()
-        val contraseña = etContraseña.text.toString().trim()
+   private fun iniciarSesion() {
+    val correo = etCorreo.text.toString().trim()
+    val contraseña = etContraseña.text.toString().trim()
 
-        if (correo.isEmpty() || contraseña.isEmpty()) {
-            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
-            return
-        }
+    if (correo.isEmpty() || contraseña.isEmpty()) {
+        Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+        return
+    }
 
-        db.collection("usuarios")
-            .whereEqualTo("correo", correo)
-            .whereEqualTo("contraseña", contraseña)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    if (document.getString("usuario") == "usuario") {
-                        // Inicio de sesión exitoso
-                        val intent = Intent(this, InicioUsuario::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
+    FirebaseAuth.getInstance().signInWithEmailAndPassword(correo, contraseña)
+        .addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                // Inicio de sesión exitoso
+                val intent = Intent(this, InicioUsuario::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                // Si el inicio de sesión falla, muestra un mensaje al usuario.
                 Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
             }
-    }
+        }
+}
 }

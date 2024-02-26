@@ -55,13 +55,13 @@
             android:name=".perfil.PerfilU"
             android:exported="false" />
         <activity
-            android:name=".PerfilM"
+            android:name=".perfil.PerfilM"
             android:exported="false" />
         <activity
             android:name=".register.RegisterUActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterMActivity"
+            android:name=".register.RegisterMActivity"
             android:exported="false" />
         <activity
             android:name=".Splash_screen"
