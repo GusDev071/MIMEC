@@ -1,4 +1,4 @@
-package com.secaac.mimec
+package com.secaac.mimec.register
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.secaac.mimec.LoginUActivity
+import com.secaac.mimec.R
 
 class RegisterUActivity : AppCompatActivity() {
     private lateinit var txtIni: TextView
