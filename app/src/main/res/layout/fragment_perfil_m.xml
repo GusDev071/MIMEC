@@ -187,6 +187,7 @@
                                     android:layout_weight="1"
                                     android:fontFamily="@font/poppinsmedium"
                                     android:text=""
+                                    android:textColor="@color/black"
                                     android:textAlignment="textEnd"
                                     android:textSize="18sp" />
 
@@ -218,12 +219,13 @@
                                     android:textSize="18sp" />
 
                                 <TextView
-                                    android:id="@+id/direccion"
+                                    android:id="@+id/direccioon"
                                     android:layout_width="247dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:fontFamily="@font/poppinsmedium"
                                     android:text=""
+                                    android:textColor="@color/black"
                                     android:textAlignment="textEnd"
                                     android:textSize="18sp" />
 

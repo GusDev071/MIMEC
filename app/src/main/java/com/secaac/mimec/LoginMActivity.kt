@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.secaac.mimec.register.RegisterMActivity
 
 class LoginMActivity : AppCompatActivity() {
     private lateinit var txtReg2: TextView

@@ -15,7 +15,6 @@ import com.google.firebase.ktx.Firebase
 class PerfilM : Fragment() {
 
     private val db = Firebase.firestore
-    private var correoUsuarioActual = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,8 +23,8 @@ class PerfilM : Fragment() {
         // Inflar el layout para este fragmento
         val vista = inflater.inflate(R.layout.fragment_perfil_m, container, false)
 
-        // Obtener el correo electrónico del usuario actual
-        obtenerCorreoUsuarioActual(vista)
+        // Obtener los datos del usuario de Firestore
+        obtenerDatosUsuario(vista)
 
         // Agregar OnClickListener al botón "Cerrar sesión"
         vista.findViewById<Button>(R.id.cerrarSM).setOnClickListener {
@@ -41,21 +40,11 @@ class PerfilM : Fragment() {
         return vista
     }
 
-    private fun obtenerCorreoUsuarioActual(vista: View) {
-        db.collection("sesionUsuario")
-            .document("sesionActual")
-            .get()
-            .addOnSuccessListener { documento ->
-                correoUsuarioActual = documento.getString("correo") ?: ""
-                // Ahora que tenemos el correo del usuario, obtenemos sus datos
-                obtenerDatosUsuario(vista)
-            }
-            .addOnFailureListener { excepcion ->
-                Log.d("PerfilM", "falló la obtención con ", excepcion)
-            }
-    }
-
     private fun obtenerDatosUsuario(vista: View) {
+        // Obtener el correo electrónico del usuario actual
+        // Reemplaza "correoUsuarioActual" con el correo electrónico real del usuario actual
+        val correoUsuarioActual = "correoUsuarioActual"
+
         db.collection("usuarios")
             .whereEqualTo("correo", correoUsuarioActual)
             .get()
@@ -69,7 +58,7 @@ class PerfilM : Fragment() {
 
                     // Establecer el texto de los TextViews con los datos del usuario
                     nombreMTextView.text = documento.getString("nombreCompleto")
-                    correoMTextView.text = correoUsuarioActual
+                    correoMTextView.text = documento.getString("correo")
                     nombreTallerTextView.text = documento.getString("nombreTaller")
                     direccionTextView.text = documento.getString("direccion")
                 }
