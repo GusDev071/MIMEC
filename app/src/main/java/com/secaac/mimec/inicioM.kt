@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.secaac.mimec.databinding.ActivityInicioMBinding
-import com.secaac.mimec.perfil.PerfilM
+import com.secaac.mimec.PerfilM
 
 class inicioM : AppCompatActivity() {
     private lateinit var binding : ActivityInicioMBinding

@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.Source
 import com.google.firebase.ktx.Firebase
 
 class EditServiceActivity : AppCompatActivity() {
@@ -38,7 +40,7 @@ class EditServiceActivity : AppCompatActivity() {
 
         // Set an OnClickListener for the submit button
         submitButton.setOnClickListener {
-            // Get the new data from the edit fields
+            // Update the fields of the existing service object
             service.serviceName = serviceNameField.text.toString()
             service.cost = costField.text.toString()
             service.serviceType = serviceTypeField.text.toString()
@@ -53,8 +55,8 @@ class EditServiceActivity : AppCompatActivity() {
 
                     // Check if userId is not null or empty
                     if (!userId.isNullOrEmpty()) {
-                        // Update the service object in the database
-                        db.collection("usuarios").document(userId).collection("services")
+                        // Update the existing service object in the database
+                        db.collection("users").document(userId).collection("services")
                             .document(service.id!!)
                             .set(service)
                             .addOnSuccessListener {

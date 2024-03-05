@@ -36,7 +36,7 @@ class Servicios : Fragment() {
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = ServiceAdapter(emptyList(), ::onEdit, ::onDelete)
+        recyclerView.adapter = ServiceAdapter(emptyList(), ::onEdit, ::onDelete, ::saveService)
 
         // Retrieve the user ID from 'sesionUsuario' collection
         db.collection("sesionUsuario")
@@ -95,6 +95,35 @@ class Servicios : Fragment() {
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(context, "Error al eliminar el servicio", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    // Show an error message
+                    Toast.makeText(context, "Error: ID del usuario inválido", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al obtener el ID del usuario", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun saveService(service: Service) {
+        // Retrieve the user ID from 'sesionUsuario' collection
+        db.collection("sesionUsuario")
+            .document("sesionActual")
+            .get()
+            .addOnSuccessListener { document ->
+                val userId = document.getString("id")
+
+                // Check if userId is not null or empty
+                if (!userId.isNullOrEmpty()) {
+                    // Save the service to the database
+                    db.collection("users").document(userId).collection("services").document(service.id!!)
+                        .set(service)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Servicio guardado con éxito", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(context, "Error al guardar el servicio", Toast.LENGTH_SHORT).show()
                         }
                 } else {
                     // Show an error message
