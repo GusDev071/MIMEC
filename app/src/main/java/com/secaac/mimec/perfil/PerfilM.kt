@@ -28,7 +28,6 @@ import java.util.UUID
 
 class PerfilM : Fragment() {
 
-    private val db = Firebase.firestore
     private val PICK_IMAGE_REQUEST = 71
     private var filePath: Uri? = null
     private lateinit var imageView5: ImageView

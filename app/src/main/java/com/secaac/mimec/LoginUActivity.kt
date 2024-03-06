@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.secaac.mimec.RegisterUActivity
+import com.secaac.mimec.register.RegisterUActivity
 
 class LoginUActivity : AppCompatActivity() {
     private lateinit var txtRegistro: TextView
