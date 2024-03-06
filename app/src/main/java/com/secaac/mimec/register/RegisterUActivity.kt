@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.secaac.mimec.LoginUActivity
@@ -22,6 +23,7 @@ class RegisterUActivity : AppCompatActivity() {
     private lateinit var etConfirmarContraseña: EditText
     private lateinit var btnRegistrar: Button
     private val db = Firebase.firestore
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +37,9 @@ class RegisterUActivity : AppCompatActivity() {
         etContraseña = findViewById(R.id.editTextTextPassword)
         etConfirmarContraseña = findViewById(R.id.editTextPassword)
         btnRegistrar = findViewById(R.id.button)
+
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
 
         txtIni.setOnClickListener { Ini() }
         btnRegistrar.setOnClickListener { registrarUsuario() }
@@ -64,42 +69,39 @@ class RegisterUActivity : AppCompatActivity() {
             return
         }
 
-        // Verificar si el correo ya existe en la base de datos
-        db.collection("usuarios")
-            .whereEqualTo("correo", correo)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.documents.isEmpty()) {
-                    Toast.makeText(this, "El correo ya está en uso, intenta con otro", Toast.LENGTH_SHORT).show()
-                } else {
-                    // Crear un objeto usuario
+        // Register the user
+        auth.createUserWithEmailAndPassword(correo, contraseña)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // User is registered successfully
                     val user = hashMapOf(
                         "nombre" to nombre,
                         "marca" to marca,
                         "modelo" to modelo,
                         "correo" to correo,
                         "contraseña" to contraseña,
-                        "usuario" to "usuario" // Asegúrate de que este campo sea "usuario" para los usuarios normales y algo diferente para los mecánicos
+                        "usuario" to "usuario" // Make sure this field is "usuario" for normal users and something different for mechanics
                     )
 
-                    // Guardar el objeto usuario en Firestore
-                    db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
+                    // Save the user object in Firestore
+                    db.collection("usuarios") // Make sure you're saving in the correct collection
                         .add(user)
                         .addOnSuccessListener { documentReference ->
                             Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
 
-                            // Redirigir al usuario a la actividad de inicio de sesión
+                            // Redirect the user to the login activity
                             val intent = Intent(this, LoginUActivity::class.java)
                             startActivity(intent)
-                            finish() // Cierra la actividad actual para que no pueda volver atrás
+                            finish() // Close the current activity so they can't go back
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
                         }
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al verificar el correo", Toast.LENGTH_SHORT).show()
             }
     }
 }
