@@ -8,9 +8,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.secaac.mimec.RegisterUActivity
+import com.secaac.mimec.register.RegisterUActivity
 
 class LoginUActivity : AppCompatActivity() {
     private lateinit var txtRegistro: TextView
@@ -63,7 +65,14 @@ class LoginUActivity : AppCompatActivity() {
                 finish()
             } else {
                 // Si el inicio de sesión falla, muestra un mensaje al usuario.
-                Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
+                val exception = task.exception
+                if (exception is FirebaseAuthInvalidCredentialsException) {
+                    Toast.makeText(this, "Las credenciales proporcionadas son incorrectas o el usuario no existe", Toast.LENGTH_SHORT).show()
+                } else if (exception is FirebaseAuthInvalidUserException) {
+                    Toast.makeText(this, "El usuario no existe", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 }

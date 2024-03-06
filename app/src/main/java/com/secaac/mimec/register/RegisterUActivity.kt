@@ -1,4 +1,4 @@
-package com.secaac.mimec
+package com.secaac.mimec.register
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,8 +7,11 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.secaac.mimec.LoginUActivity
+import com.secaac.mimec.R
 
 class RegisterUActivity : AppCompatActivity() {
     private lateinit var txtIni: TextView
@@ -62,21 +65,15 @@ class RegisterUActivity : AppCompatActivity() {
             return
         }
 
-        // Verificar si el correo ya existe en la base de datos
-        db.collection("usuarios")
-            .whereEqualTo("correo", correo)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.documents.isEmpty()) {
-                    Toast.makeText(this, "El correo ya está en uso, intenta con otro", Toast.LENGTH_SHORT).show()
-                } else {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(correo, contraseña)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
                     // Crear un objeto usuario
                     val user = hashMapOf(
                         "nombre" to nombre,
                         "marca" to marca,
                         "modelo" to modelo,
                         "correo" to correo,
-                        "contraseña" to contraseña,
                         "usuario" to "usuario" // Asegúrate de que este campo sea "usuario" para los usuarios normales y algo diferente para los mecánicos
                     )
 
@@ -94,10 +91,10 @@ class RegisterUActivity : AppCompatActivity() {
                         .addOnFailureListener { e ->
                             Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
                         }
+                } else {
+                    // Si la creación de la cuenta falla, muestra un mensaje al usuario.
+                    Toast.makeText(this, "Error al crear cuenta", Toast.LENGTH_SHORT).show()
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al verificar el correo", Toast.LENGTH_SHORT).show()
             }
     }
 }
