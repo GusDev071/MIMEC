@@ -15,7 +15,7 @@
             android:id="@+id/mechanicProfileImage"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/ic_launcher_background" <!-- Reemplaza esto con la imagen de perfil del mecánico -->
+            android:src="@drawable/ic_launcher_background"
             android:scaleType="centerCrop"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"/>
