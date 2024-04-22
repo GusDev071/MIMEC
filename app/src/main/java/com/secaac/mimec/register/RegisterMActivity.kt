@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.secaac.mimec.LoginMActivity
@@ -41,6 +42,7 @@ class RegisterMActivity : AppCompatActivity() {
     private fun Ini2() {
         val ini2 = Intent(this, LoginMActivity::class.java)
         startActivity(ini2)
+        finish() // Cierra la actividad actual después de iniciar sesión
     }
 
     private fun registrarUsuario() {
@@ -55,36 +57,42 @@ class RegisterMActivity : AppCompatActivity() {
         return
     }
 
-    // Crear un objeto usuario
-    val user = hashMapOf(
-        "nombreCompleto" to nombreCompleto,
-        "nombreTaller" to nombreTaller,
-        "correo" to correo,
-        "contraseña" to contraseña,
-        "direccion" to direccion,
-        "usuario" to "mechanic" // Asegúrate de que este campo sea "mechanic" para los mecánicos
-    )
+    FirebaseAuth.getInstance().createUserWithEmailAndPassword(correo, contraseña)
+        .addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                // Crear un objeto usuario
+                val user = hashMapOf(
+                    "nombreCompleto" to nombreCompleto,
+                    "nombreTaller" to nombreTaller,
+                    "correo" to correo,
+                    "direccion" to direccion,
+                    "contraseña" to contraseña,
+                    "usuario" to "mechanic" // Asegúrate de que este campo sea "mechanic" para los mecánicos
+                )
 
-    // Guardar el objeto usuario en Firestore
-    db.collection("usuarios")
-    .add(user)
-    .addOnSuccessListener { documentReference ->
-        Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+                // Obtener el ID del usuario
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Guardar el ID del documento en las preferencias compartidas
-        val sharedPref = getSharedPreferences("myPrefs", MODE_PRIVATE)
-        with (sharedPref.edit()) {
-            putString("mecanicoId", documentReference.id) // Usa "mecanicoId" para el mecánico
-            apply()
+                // Guardar el objeto usuario en Firestore
+                if (userId != null) {
+                    db.collection("usuarios").document(userId)
+                        .set(user)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Usuario almacenado con ID: $userId", Toast.LENGTH_SHORT).show()
+
+                            // Redirigir al usuario a la actividad de inicio de sesión
+                            val intent = Intent(this, LoginMActivity::class.java)
+                            startActivity(intent)
+                            finish() // Cierra la actividad actual para que no pueda volver atrás
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            } else {
+                // Si el registro falla, muestra un mensaje al usuario.
+                Toast.makeText(this, "Error al registrar usuario", Toast.LENGTH_SHORT).show()
+            }
         }
-
-        // Redirigir al usuario a la actividad de inicio de sesión
-        val intent = Intent(this, LoginMActivity::class.java)
-        startActivity(intent)
-        finish() // Cierra la actividad actual para que no pueda volver atrás
-    }
-    .addOnFailureListener { e ->
-        Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
-    }
 }
 }

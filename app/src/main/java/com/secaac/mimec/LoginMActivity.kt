@@ -2,12 +2,13 @@ package com.secaac.mimec
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.secaac.mimec.register.RegisterMActivity
@@ -44,45 +45,30 @@ class LoginMActivity : AppCompatActivity() {
     }
 
     private fun IniS() {
-        val correo = etCorreo.text.toString().trim()
-        val contraseña = etContraseña.text.toString().trim()
+    val correo = etCorreo.text.toString().trim()
+    val contraseña = etContraseña.text.toString().trim()
 
-        if (correo.isEmpty() || contraseña.isEmpty()) {
-            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
-            return
-        }
+    if (correo.isEmpty() || contraseña.isEmpty()) {
+        Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+        return
+    }
 
-        db.collection("usuarios")
-            .whereEqualTo("correo", correo)
-            .whereEqualTo("contraseña", contraseña)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    if (document.getString("usuario") == "mechanic") {
-                        // Inicio de sesión exitoso
-                        // Agrega el ID del documento del usuario a la colección 'sesionUsuario'
-                        db.collection("sesionUsuario")
-                            .document("sesionActual")
-                            .set(hashMapOf("id" to document.id))
-                            .addOnSuccessListener {
-                                Log.d("LoginActivity", "ID del usuario actual agregado a 'sesionUsuario'")
-                            }
-                            .addOnFailureListener { e ->
-                                Log.w("LoginActivity", "Error al agregar ID del usuario a 'sesionUsuario'", e)
-                            }
+    FirebaseAuth.getInstance().signInWithEmailAndPassword(correo, contraseña)
+        .addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
+                // Inicio de sesión exitoso
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                Log.d("LoginMActivity", "User ID: $userId") // Imprimir el ID del usuario en el logcat
 
-                        val ini = Intent(this, inicioM::class.java)
-                        startActivity(ini)
-                        finish()
-                    } else {
-                        Toast.makeText(this, "No tienes permiso para acceder a esta sección", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
+                val intent = Intent(this, inicioM::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                // Si el inicio de sesión falla, muestra un mensaje al usuario.
                 Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
             }
-    }
+        }
+}
 
 
 }

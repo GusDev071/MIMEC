@@ -129,30 +129,27 @@ class PerfilU : Fragment() {
         return Uri.fromFile(activity?.getFileStreamPath("profile_picture.jpg"))
     }
 
-    private fun cargarDatosUsuario() {
+   private fun cargarDatosUsuario() {
     val db = Firebase.firestore
 
-    // Obtener el ID del usuario actualmente autenticado
-    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    // Obtener el correo del usuario actualmente autenticado
+    val correoUsuario = FirebaseAuth.getInstance().currentUser?.email
 
-    if (userId != null) {
-        Log.d("PerfilU", "User ID: $userId") // Registrar el ID del usuario
+    if (correoUsuario != null) {
+        Log.d("PerfilU", "Correo del usuario: $correoUsuario") // Registrar el correo del usuario
 
-        db.collection("usuarios").document(userId)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w("PerfilU", "Listen failed.", e)
-                    return@addSnapshotListener
-                }
+        db.collection("usuarios")
+            .whereEqualTo("correo", correoUsuario)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.documents.isNotEmpty()) {
+                    val document = documents.documents[0]
+                    Log.d("PerfilU", "Datos del usuario: ${document.data}") // Registrar los datos del documento
 
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d("PerfilU", "Current data: ${snapshot.data}") // Registrar los datos del documento
-
-                    val nombreUsuario = snapshot.getString("nombre")
-                    val marcaUsuario = snapshot.getString("marca")
-                    val modeloUsuario = snapshot.getString("modelo")
-                    val correoUsuario = snapshot.getString("correo")
-                    val photoUrl = snapshot.getString("photoUrl")
+                    val nombreUsuario = document.getString("nombre")
+                    val marcaUsuario = document.getString("marca")
+                    val modeloUsuario = document.getString("modelo")
+                    val photoUrl = document.getString("photoUrl")
 
                     activity?.runOnUiThread {
                         nombre.text = nombreUsuario
@@ -167,8 +164,11 @@ class PerfilU : Fragment() {
                             .into(imageView4)
                     }
                 } else {
-                    Log.d("PerfilU", "Current data: null")
+                    Log.d("PerfilU", "No se encontró un usuario con el correo: $correoUsuario")
                 }
+            }
+            .addOnFailureListener { e ->
+                Log.w("PerfilU", "Error al obtener los datos del usuario", e)
             }
     }
 }

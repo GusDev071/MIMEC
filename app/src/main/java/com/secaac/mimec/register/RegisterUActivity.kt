@@ -23,6 +23,7 @@ class RegisterUActivity : AppCompatActivity() {
     private lateinit var etConfirmarContraseña: EditText
     private lateinit var btnRegistrar: Button
     private val db = Firebase.firestore
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +37,9 @@ class RegisterUActivity : AppCompatActivity() {
         etContraseña = findViewById(R.id.editTextTextPassword)
         etConfirmarContraseña = findViewById(R.id.editTextPassword)
         btnRegistrar = findViewById(R.id.button)
+
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
 
         txtIni.setOnClickListener { Ini() }
         btnRegistrar.setOnClickListener { registrarUsuario() }
@@ -65,35 +69,38 @@ class RegisterUActivity : AppCompatActivity() {
             return
         }
 
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(correo, contraseña)
+        // Register the user
+        auth.createUserWithEmailAndPassword(correo, contraseña)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Crear un objeto usuario
+                    // User is registered successfully
                     val user = hashMapOf(
                         "nombre" to nombre,
                         "marca" to marca,
                         "modelo" to modelo,
                         "correo" to correo,
-                        "usuario" to "usuario" // Asegúrate de que este campo sea "usuario" para los usuarios normales y algo diferente para los mecánicos
+                        "contraseña" to contraseña,
+                        "usuario" to "usuario" // Make sure this field is "usuario" for normal users and something different for mechanics
                     )
 
-                    // Guardar el objeto usuario en Firestore
-                    db.collection("usuarios") // Asegúrate de que estás guardando en la colección correcta
+                    // Save the user object in Firestore
+                    db.collection("usuarios") // Make sure you're saving in the correct collection
                         .add(user)
                         .addOnSuccessListener { documentReference ->
                             Toast.makeText(this, "Usuario almacenado con ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
 
-                            // Redirigir al usuario a la actividad de inicio de sesión
+                            // Redirect the user to the login activity
                             val intent = Intent(this, LoginUActivity::class.java)
                             startActivity(intent)
-                            finish() // Cierra la actividad actual para que no pueda volver atrás
+                            finish() // Close the current activity so they can't go back
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(this, "Error al almacenar usuario", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    // Si la creación de la cuenta falla, muestra un mensaje al usuario.
-                    Toast.makeText(this, "Error al crear cuenta", Toast.LENGTH_SHORT).show()
+                    // If sign in fails, display a message to the user.
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
                 }
             }
     }
