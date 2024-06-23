@@ -48,7 +48,8 @@ class Servicios : Fragment() {
                 // Check if userId is not null or empty
                 if (!userId.isNullOrEmpty()) {
                     // Fetch the services associated with the current user
-                    db.collection("users").document(userId).collection("services")
+                    db.collection("services")
+                        .whereEqualTo("userId", userId)
                         .get()
                         .addOnSuccessListener { result ->
                             val services = mutableListOf<Service>()
@@ -88,7 +89,8 @@ class Servicios : Fragment() {
                 // Check if userId is not null or empty
                 if (!userId.isNullOrEmpty()) {
                     // Delete the service from the database
-                    db.collection("users").document(userId).collection("services").document(service.id!!)
+                    db.collection("services")
+                        .document(service.id!!)
                         .delete()
                         .addOnSuccessListener {
                             Toast.makeText(context, "Servicio eliminado con éxito", Toast.LENGTH_SHORT).show()
@@ -117,7 +119,7 @@ class Servicios : Fragment() {
                 // Check if userId is not null or empty
                 if (!userId.isNullOrEmpty()) {
                     // Save the service to the database
-                    db.collection("users").document(userId).collection("services").document(service.id!!)
+                    db.collection("services").document(service.id!!)
                         .set(service)
                         .addOnSuccessListener {
                             Toast.makeText(context, "Servicio guardado con éxito", Toast.LENGTH_SHORT).show()

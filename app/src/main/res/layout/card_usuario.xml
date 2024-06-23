@@ -24,7 +24,7 @@
             android:id="@+id/mechanicWorkshopName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nombre del taller"
+            android:text="Nombre del taller:"
             android:textSize="18sp"
             android:textColor="@android:color/black"
             android:textStyle="bold"/>
@@ -33,7 +33,7 @@
             android:id="@+id/mechanicAddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dirección del taller"
+            android:text="Dirección del taller:"
             android:textSize="16sp"
             android:textColor="@android:color/darker_gray"/>
 
@@ -48,8 +48,8 @@
                 android:id="@+id/edit_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Editar"
-                android:backgroundTint="#AEDFF7" />
+                android:backgroundTint="#AEDFF7"
+                android:text="Ver servicios" />
 
             <Button
                 android:id="@+id/delete_button"
